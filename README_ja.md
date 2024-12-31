@@ -1,21 +1,17 @@
-# Bedrock Claude Chat
+# Bedrock Claude Chat (Nova)
 
 > [!Warning]
-> 近々、v2 へのメジャーアップデートを予定しています。v1 とは後方互換性がなく、**既存の RAG ボットは使用できなくなる予定です。** 詳しくは[ガイド](./migration/V1_TO_V2.md)をご参照ください。
-
-> [!Warning]
-> 古いバージョン(v0.4.x 以前) を使用していて最新バージョンを使いたい場合は、[移行ガイド](./migration/V0_TO_V1.md)を参照してください。気をつけないと、Aurora クラスターのすべてのデータが破壊され、ユーザーはもはや既存の RAG ボットを利用できず、また新規にボットを作成できなくなります。
+> **V2 がリリースされました。** 更新する際は、[移行ガイド](./migration/V1_TO_V2.md)を必ずご確認ください。 **注意を払わずに進めると、V1 の BOT は使用できなくなります。**
 
 このリポジトリは、生成系 AI を提供する[Amazon Bedrock](https://aws.amazon.com/jp/bedrock/)の基盤モデルの一つである、Anthropic 社製 LLM [Claude](https://www.anthropic.com/)を利用したチャットボットのサンプルです。
 
 ### 基本的な会話
 
-[Claude 3](https://www.anthropic.com/news/claude-3-family)によるテキストと画像の両方を利用したチャットが可能です。現在`Haiku`および`Sonnet`、または`Opus`をサポートしています。
 ![](./imgs/demo_ja.gif)
 
 ### ボットのカスタマイズ
 
-外部のナレッジおよび具体的なインストラクションを組み合わせ、ボットをカスタマイズすることが可能です（外部のナレッジを利用した方法は[RAG](./RAG_ja.md)として知られています）。なお、作成したボットはアプリケーションのユーザー間で共有することができます。カスタマイズされたボットはスタンドアロンの API として公開できます (詳細は[こちら](./PUBLISH_API.md)をご覧ください)。
+外部のナレッジおよび具体的なインストラクションを組み合わせ、ボットをカスタマイズすることが可能です（外部のナレッジを利用した方法は[RAG](https://aws.amazon.com/what-is/retrieval-augmented-generation/)として知られています）。なお、作成したボットはアプリケーションのユーザー間で共有することができます。カスタマイズされたボットはスタンドアロンの API として公開できます (詳細は[こちら](./PUBLISH_API.md)をご覧ください)。
 
 ![](./imgs/bot_creation_ja.png)
 ![](./imgs/bot_chat_ja.png)
@@ -37,7 +33,7 @@
 
 ## 🚀 まずはお試し
 
-- us-east-1 リージョンにて、[Bedrock Model access](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) > `Manage model access` > `Anthropic / Claude 3 Haiku`, `Anthropic / Claude 3 Sonnet`, `Anthropic / Claude 3.5 Sonnet` `Cohere / Embed Multilingual`をチェックし、`Save changes`をクリックします
+- us-east-1 リージョンにて、[Bedrock Model access](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) > `Manage model access` > すべての`Anthropic / Claude 3`、 すべての `Amazon / Nova`、`Cohere / Embed Multilingual`をチェックし、`Save changes`をクリックします
 
 <details>
 <summary>スクリーンショット</summary>
@@ -57,13 +53,14 @@ chmod +x bin.sh
 ./bin.sh
 ```
 
-- 新規ユーザーまたは v1 ユーザーかどうかを聞かれます。v0 からの継続利用でない場合は `y` を入力してください。
+- 新規ユーザーまたは v2 ユーザーかどうかを聞かれます。v0 からの継続利用でない場合は `y` を入力してください。
 
 ### オプションのパラメータ
 
 デプロイ時に以下のパラメータを指定することで、セキュリティとカスタマイズを強化できます。
 
 - **--disable-self-register**: セルフ登録を無効にします（デフォルト: 有効）。このフラグを設定すると、Cognito 上で全てのユーザーを作成する必要があり、ユーザーが自分でアカウントを登録することはできなくなります。
+- **--enable-lambda-snapstart**: [Lambda SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) を有効化します (デフォルト: 無効)。 このフラグを設定すると、Lambda 関数のコールドスタート時間を短縮し、レスポンスタイムの改善によってユーザー体験を向上させます。
 - **--ipv4-ranges**: 許可する IPv4 範囲のカンマ区切りリスト。（デフォルト: 全ての IPv4 アドレスを許可）
 - **--ipv6-ranges**: 許可する IPv6 範囲のカンマ区切りリスト。（デフォルト: 全ての IPv6 アドレスを許可）
 - **--disable-ipv6**: IPv6 での接続を無効にします (デフォルト: 有効)
@@ -101,10 +98,11 @@ AWS のマネージドサービスで構成した、インフラストラクチ�
 - [Amazon CloudFront](https://aws.amazon.com/jp/cloudfront/) + [S3](https://aws.amazon.com/jp/s3/): フロントエンドアプリケーションの配信 ([React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/))
 - [AWS WAF](https://aws.amazon.com/jp/waf/): IP アドレス制限
 - [Amazon Cognito](https://aws.amazon.com/jp/cognito/): ユーザ認証
-- [Amazon Bedrock](https://aws.amazon.com/jp/bedrock/): 基盤モデルを API 経由で利用できるマネージドサービス。Claude はチャットの応答に利用され、Cohere は RAG 用のベクトル埋め込みに利用されます
-- [Amazon EventBridge Pipes](https://aws.amazon.com/eventbridge/pipes/): DynamoDB からのイベントを受け取り、後続の ECS タスクを起動することで、外部のナレッジをカスタマイズ bot に反映します
-- [Amazon Elastic Container Service](https://aws.amazon.com/ecs/): ナレッジをクロール・パースし、埋め込みベクトルと共に Aurora PostgreSQL へ保存します。[Cohere Multilingual](https://txt.cohere.com/multilingual/)がベクトル計算に利用されます
-- [Amazon Aurora PostgreSQL](https://aws.amazon.com/rds/aurora/): [pgvector](https://github.com/pgvector/pgvector) プラグインを利用したスケーラブルなベクトル DB
+- [Amazon Bedrock](https://aws.amazon.com/bedrock/): 基盤となるモデルを API 経由で利用できるマネージドサービス
+- [Amazon Bedrock Knowledge Bases](https://aws.amazon.com/bedrock/knowledge-bases/): Retrieval-Augmented Generation (RAG)のためのマネージドなインターフェースを提供し、埋め込みやドキュメントのパース機能を提供
+- [Amazon EventBridge Pipes](https://aws.amazon.com/eventbridge/pipes/): DynamoDB ストリームからのイベントを受け取り、Step Functions を起動して外部知識の埋め込みを行う
+- [AWS Step Functions](https://aws.amazon.com/step-functions/): 外部知識を Bedrock Knowledge Bases に埋め込むためのパイプラインをオーケストレーション
+- [Amazon OpenSearch Serverless](https://aws.amazon.com/opensearch-service/features/serverless/): Bedrock Knowledge Bases のバックエンドデータベースとして機能し、全文検索やベクトル検索機能を提供して、関連情報の正確な取得を可能にする
 - [Amazon Athena](https://aws.amazon.com/athena/): S3 バケット内のデータを分析するクエリサービス
 
 ![](imgs/arch.png)
@@ -148,6 +146,7 @@ cdk bootstrap aws://<account id>/ap-northeast-1
 
   - `bedrockRegion`: Bedrock が利用できるリージョン
   - `allowedIpV4AddressRanges`, `allowedIpV6AddressRanges`: 許可する IP アドレス範囲の指定
+  - `enableLambdaSnapStart`: デフォルトでは true ですが、[Python 関数の Lambda SnapStart をサポートしていないリージョン](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html#snapstart-supported-regions)にデプロイする場合は false に変更してください。
 
 - プロジェクトをデプロイします
 
@@ -205,41 +204,9 @@ GENERATION_CONFIG = {
 "allowedSignUpEmailDomains": ["example.com"],
 ```
 
-### NAT Gateway 数のカスタマイズ
-
-このサンプルはデフォルトでは 2 つの NAT Gateway がデプロイされますが、2 つの NAT Gateway が不要な場合は、NAT Gateway の数を変更してコストを削減できます。`cdk.json`を開き、 `natgatewayCount` のパラメータを変更してください。
-
-```ts
-"natgatewayCount": 2
-```
-
 ### リソースの削除
 
 cli および CDK を利用されている場合、`cdk destroy`を実行してください。そうでない場合は[CloudFormation](https://console.aws.amazon.com/cloudformation/home)へアクセスし、手動で`BedrockChatStack`および`FrontendWafStack`を削除してください。なお`FrontendWafStack`は `us-east-1` リージョンにあります。
-
-### RAG 用ベクトル DB の停止
-
-[cdk.json](../cdk/cdk.json) を以下のように CRON 形式で設定することで、[VectorStore コンストラクト](../cdk/lib/constructs/vectorstore.ts)で作成される Aurora Serverless リソースを停止・再起動できます。この設定を適用することで運用コストの削減が見込めます。なお、デフォルト設定で Aurora Serverless は常時起動状態になっています。なお UTC で実行される点に留意ください。
-
-```json
-...
-"rdbSchedules": {
-  "stop": {
-    "minute": "50",
-    "hour": "10",
-    "day": "*",
-    "month": "*",
-    "year": "*"
-  },
-  "start": {
-    "minute": "40",
-    "hour": "2",
-    "day": "*",
-    "month": "*",
-    "year": "*"
-  }
-}
-```
 
 ### 言語設定について
 
@@ -271,6 +238,35 @@ cli および CDK を利用されている場合、`cdk destroy`を実行して�
 
 デフォルトでは、新規作成ユーザーは `CreatingBotAllowed` グループに参加します。
 
+### RAG レプリカの設定
+
+`enableRagReplicas` は、[cdk.json](../cdk/cdk.json) にあるオプションで、RAG のデータベース、つまり Knowledge Bases が利用する Amazon OpenSearch Serverless のレプリカ設定を制御します。
+
+- **デフォルト**: true
+- **true**: レプリカを有効にして可用性を向上させます。本番環境向けですが、コストが増加します。
+- **false**: レプリカ数を減らしてコストを削減します。開発やテスト環境向けです。
+
+この設定はアカウント/リージョンレベルで適用され、個々のボットではなくアプリ全体に影響します。
+
+> [!Note]
+> 2024 年 6 月時点で、Amazon OpenSearch Serverless は 0.5 OCU をサポートし、小規模なワークロードのエントリーコストを削減しました。本番環境では 2 OCU から、開発/テスト環境では 1 OCU から利用可能です。負荷に応じて自動的にスケールします。詳細は[アナウンス](https://aws.amazon.com/jp/about-aws/whats-new/2024/06/amazon-opensearch-serverless-entry-cost-half-collection-types/)をご覧ください。
+
+### クロスリージョン推論
+
+[クロスリージョン推論](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html)を有効にすると、Amazon Bedrock はモデル推論リクエストを複数の AWS リージョン間で動的にルーティングし、ピーク時の需要に対してスループットとレジリエンスを向上させます。設定するには、`cdk.json`ファイルを編集し、以下のように指定します。
+
+```json
+"enableBedrockCrossRegionInference": true
+```
+
+### Lambda SnapStart
+
+[Lambda SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) は Lambda 関数のコールドスタート時間を短縮し、レスポンスタイムの改善によってユーザー体験を向上させます。ただし、Python 関数については[キャッシュサイズに比例した利用料金](https://aws.amazon.com/lambda/pricing/#SnapStart_Pricing)が発生するのに加え、[一部のリージョン](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html#snapstart-supported-regions)では現在利用できません。SnapStart を無効化するには、`cdk.json` を以下のように編集します。
+
+```json
+"enableLambdaSnapStart": false
+```
+
 ### ローカルでの開発について
 
 - [こちら](./LOCAL_DEVELOPMENT_ja.md)を参照ください。
@@ -287,7 +283,3 @@ cli および CDK を利用されている場合、`cdk destroy`を実行して�
 
 - [ローカル環境での開発](./LOCAL_DEVELOPMENT_ja.md)
 - [CONTRIBUTING](../CONTRIBUTING.md)
-
-### RAG (Retrieval Augmented Generation, 検索拡張生成)
-
-[こちら](./RAG_ja.md)を参照

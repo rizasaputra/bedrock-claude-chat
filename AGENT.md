@@ -10,11 +10,11 @@ This sample implements an Agent using the [ReAct (Reasoning + Acting)](https://w
 
 An Agent using ReAct can be applied in various scenarios, providing accurate and efficient solutions.
 
-### Text-to-SQL Example
+### Text-to-SQL
 
-A user asks for "the total sales for the last quarter." The Agent interprets this request, converts it into a SQL query, executes it against the database, and presents the results. For the detail, see: [Text-to-SQL tool](../examples/agents/tools/text_to_sql/)
+A user asks for "the total sales for the last quarter." The Agent interprets this request, converts it into a SQL query, executes it against the database, and presents the results.
 
-### Financial Forecasting Example
+### Financial Forecasting
 
 A financial analyst needs to forecast next quarter's revenue. The Agent gathers relevant data, performs necessary calculations using financial models, and generates a detailed forecast report, ensuring the accuracy of the projections.
 
@@ -31,7 +31,7 @@ To enable the Agent functionality for your customized chatbot, follow these step
 ![](./imgs/agent_tools.png)
 
 > [!Important]
-> It's important to note that enabling any tool in the Agent section will automatically treat the ["Knowledge" functionality](RAG.md) as a tool as well. This means that the LLM will autonomously determine whether to use the "Knowledge" to answer user queries, considering it as one of the available tools at its disposal.
+> It's important to note that enabling any tool in the Agent section will automatically treat the ["Knowledge" functionality](https://aws.amazon.com/what-is/retrieval-augmented-generation/) as a tool as well. This means that the LLM will autonomously determine whether to use the "Knowledge" to answer user queries, considering it as one of the available tools at its disposal.
 
 4. By default "Internet Search" tool is provided. This tool allows the Agent to fetch information from the internet to answer user questions.
 
@@ -46,7 +46,7 @@ This tool depends [DuckDuckGo](https://duckduckgo.com/) which has rate limit. It
 
 To develop your own custom tools for the Agent, follow these guidelines:
 
-- Create a new class that inherits from the `BaseTool` class. Although the interface is compatible with LangChain, this sample implementation provides its own `BaseTool` class, which you should inherit from ([source](../backend/app/agents/tools/base.py)).
+- Create a new class that inherits from the `AgentTool` class. Although the interface is compatible with LangChain, this sample implementation provides its own `AgentTool` class, which you should inherit from ([source](../backend/app/agents/tools/agent_tool.py)).
 
 - Refer to the sample implementation of a [BMI calculation tool](../examples/agents/tools/bmi/bmi.py). This example demonstrates how to create a tool that calculates the Body Mass Index (BMI) based on user input.
 
@@ -62,8 +62,6 @@ To develop your own custom tools for the Agent, follow these guidelines:
   - Edit `xx/index.ts` as well. Where `xx` represents the country code you wish.
 
 - Run `cdk deploy` to deploy your changes. This will make your custom tool available in the custom bot screen.
-
-In addition to the BMI calculation example, there are other tool examples available for reference, including [Text-to-SQL](../examples/agents/tools/text_to_sql/). Feel free to explore these [examples](../examples/agents/tools/) to gain insights and inspiration for creating your own tools.
 
 ## Contribution
 
